@@ -40,29 +40,27 @@ public class Build {
    */
   public static String longestWord(Vertex<String> vertex) {
     Set<Vertex<String>> seen = new HashSet<>();
-    longestWordHelper(vertex, seen);
-    String longestWord = "";
-    int len = 0;
-    for (Vertex<String> v : seen) {
-      if (v.data.length() > len) {
-        len = v.data.length();
-        longestWord = v.data;
-      }
-    }
-    return longestWord;
+    Vertex<String> longestWord = new Vertex<String>("");
+    // System.out.println(longestWord);
+    longestWordHelper(vertex, seen, longestWord);
+    return longestWord.data;
   }
 
-  private static void longestWordHelper(Vertex<String> vertex, Set<Vertex<String>> seen) {
-    if (seen.contains(vertex) || vertex == null) return;
+  private static void longestWordHelper(Vertex<String> vertex, Set<Vertex<String>> seen, Vertex<String> longestWord) {
+    if (vertex == null) return;
+    if (vertex.data.length() > longestWord.data.length()) longestWord.data = vertex.data;
     seen.add(vertex);
     for (Vertex<String> v : vertex.neighbors) {
-      longestWordHelper(v, seen);
+      if (!seen.contains(v)) longestWordHelper(v, seen, longestWord);
     }
   }
 
   /**
    * Prints the values of all vertices that are reachable from the given vertex and 
    * have themself as a neighbor.
+   * 
+   * 7 -> 32, 45, 60 // false
+   * 60 -> 40, 70, 60 // true
    *
    * @param vertex the starting vertex
    * @param <T> the type of values stored in the vertices
@@ -72,11 +70,12 @@ public class Build {
   }
 
   private static <T> void printSelfLoopers(Vertex<T> vertex, Set<Vertex<T>> seen) {
-    if (vertex == null || seen.contains(vertex)) return;
+    if (vertex == null) return;
+    if (vertex.neighbors.contains(vertex)) System.out.println(vertex.data);
+    // if (vertex == null || seen.contains(vertex)) return;
     seen.add(vertex);
     for (Vertex<T> neighbor : vertex.neighbors) {
-      if (vertex.neighbors.contains(vertex)) System.out.println(neighbor.data);
-      printSelfLoopers(neighbor, seen);
+      if (!seen.contains(neighbor)) printSelfLoopers(neighbor, seen);
     }
   }
 
@@ -94,7 +93,7 @@ public class Build {
 
   public static boolean canReach(Airport start, Airport destination, Set<Airport> seen) {
     if (start == destination) return true;
-    if (seen.contains(start)) return false;
+    // if (seen.contains(start)) return false;
     seen.add(start);
     for (Airport flight : start.getOutboundFlights()) {
       if (!seen.contains(flight)) {
